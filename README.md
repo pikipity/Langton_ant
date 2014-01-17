@@ -3,7 +3,16 @@
 
 用 Ncurses 写的一个兰顿蚂蚁的程序。
 
-### 程序效果：
+### 更新
+
++ 加入了颜色，不同的格子和蚂蚁的颜色都不一样。
++ 改变了字符，是蚂蚁的指向更加明确。
++ 加入了键盘检测，可以随时退出程序。
++ 减慢了速度，蚂蚁运动可以看清楚了。
+
+![更新后的效果](https://lh4.googleusercontent.com/-VdDEqubW8JA/Utk4JIs2t3I/AAAAAAAABcE/wxTdi53nSB0/s638/1.gif)
+
+### 初代程序效果：
 
 ![兰顿蚂蚁](https://lh6.googleusercontent.com/-8Ofjz3znllU/UtgDNKOpL6I/AAAAAAAABbk/4VOba8xKl1E/s648/1.gif)
 
