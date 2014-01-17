@@ -9,6 +9,7 @@
 #include <ncurses.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 
 //grid
 char white[]=" ";
@@ -29,14 +30,19 @@ int current_x,current_y,next_x,next_y;
 //
 int row=0;
 int col=0;
-int sleep_time=1000000/30;
+char button='a';
+int delay_10th=3;
 
 void init_game(){
+    while (button!=' ') {
+        clear();
+        getmaxyx(stdscr,row,col);
+        mvprintw(row/2, col/2-11, "Now, press \"Space\" to start.");
+        mvprintw(row/2+1, col/2-12, "Press \"Space\" to stop in game.");
+        refresh();
+        button=getch();
+    }
     clear();
-    getmaxyx(stdscr,row,col);
-    mvprintw(row/2, col/2-9, "Press any key to start");
-    refresh();
-    getchar();
     //init value
     current_grid=-1;
     current_state=2;
@@ -50,7 +56,6 @@ void init_game(){
     }
     mvprintw(current_y,current_x,ant[current_state-1]);
     refresh();
-    usleep(sleep_time);
 }
 
 
@@ -59,45 +64,36 @@ int main()
 {
     initscr();
     curs_set(0);
+    noecho();
+    cbreak();
+    halfdelay(delay_10th);
     while (1) {
-        int new_row,new_col;
+        //check screen (whether need init_game)
+        int new_row=1;
+        int new_col=1;
         getmaxyx(stdscr,new_row,new_col);
         if (new_row!=row || new_col!=col) {
             init_game();
         }
-        //calculate next_grid, next_state, next_x, next_y
-        switch (current_state) {
-            case 1:
-                next_y=current_y-1;
-                if (next_y<0) {
-                    next_y=row-1;
-                }
-                next_x=current_x;
-                break;
-            case 2:
-                next_x=current_x+1;
-                if(next_x>col-1){
-                    next_x=0;
-                }
-                next_y=current_y;
-                break;
-            case 3:
-                next_y=current_y+1;
-                if (next_y>row-1) {
-                    next_y=0;
-                }
-                next_x=current_x;
-                break;
-            case 4:
-                next_x=current_x-1;
-                if (next_x<0) {
-                    next_x=col-1;
-                }
-                next_y=current_y;
-                break;
-            default:
-                break;
+        //check keyboard
+        button=getch();
+        if(button==' '){
+            break;
         }
+        //calculate next_grid, next_state, next_x, next_y
+        next_y=current_y+(current_state%2)*(current_state-2);
+        if (next_y<0) {
+            next_y=row-1;
+        }else if (next_y>row-1) {
+            next_y=0;
+        }
+        next_x=current_x+(current_state%2-1)*(current_state-3);
+        if (next_x<0) {
+            next_x=col-1;
+        }else if(next_x>col-1){
+            next_x=0;
+        }
+        //
         char test=(char)mvinch(next_y, next_x);
         if (test==white[0]) {
             next_grid=-1;
@@ -123,7 +119,17 @@ int main()
         current_state=next_state;
         mvprintw(current_y,current_x,ant[current_state-1]);
         refresh();
-        usleep(sleep_time);
     }
+    //finish game
+    button=0;
+    while (button!=' ') {
+        clear();
+        getmaxyx(stdscr,row,col);
+        mvprintw(row/2, col/2-10, "Thank you -- pikipity");
+        mvprintw(row/2+1, col/2-12, "Press \"Space\" to finish");
+        refresh();
+        button=getch();
+    }
+    endwin();
 }
 
