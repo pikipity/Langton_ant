@@ -13,11 +13,11 @@
 
 //grid
 char white[]=" ";
-char black[]="#";
-char ant_u[]="U";
-char ant_r[]="R";
-char ant_d[]="D";
-char ant_l[]="L";
+char black[]="+";
+char ant_u[]="A";
+char ant_r[]=">";
+char ant_d[]="V";
+char ant_l[]="<";
 char* ant[]={ant_u,ant_r,ant_d,ant_l};
 //white:-1. black:1
 int current_grid,next_grid;
@@ -32,13 +32,20 @@ int row=0;
 int col=0;
 char button='a';
 int delay_10th=3;
+bool color;
 
 void init_game(){
     while (button!=' ') {
         clear();
         getmaxyx(stdscr,row,col);
+        if (color) {
+            attron(COLOR_PAIR(1));
+        }
         mvprintw(row/2, col/2-11, "Now, press \"Space\" to start.");
         mvprintw(row/2+1, col/2-12, "Press \"Space\" to stop in game.");
+        if (color) {
+            attroff(COLOR_PAIR(1));
+        }
         refresh();
         button=getch();
     }
@@ -51,10 +58,22 @@ void init_game(){
     //init first frame
     for (int i=0; i<row; i++) {
         for (int j=0; j<col; j++) {
-            mvprintw(i, j, white);
+            if (color) {
+                attron(COLOR_PAIR(3));
+                mvprintw(i, j, white);
+                attroff(COLOR_PAIR(3));
+            }else{
+                mvprintw(i, j, white);
+            }
         }
     }
-    mvprintw(current_y,current_x,ant[current_state-1]);
+    if (color) {
+        attron(COLOR_PAIR(5));
+        mvprintw(current_y,current_x,ant[current_state-1]);
+        attroff(COLOR_PAIR(5));
+    }else{
+        mvprintw(current_y,current_x,ant[current_state-1]);
+    }
     refresh();
 }
 
@@ -67,6 +86,15 @@ int main()
     noecho();
     cbreak();
     halfdelay(delay_10th);
+    color=has_colors();
+    if (color) {
+        start_color();
+        init_pair(1, COLOR_WHITE, COLOR_BLACK);//normal
+        init_pair(2, COLOR_BLUE, COLOR_BLUE);//black
+        init_pair(3, COLOR_CYAN, COLOR_CYAN);//white
+        init_pair(4, COLOR_MAGENTA, COLOR_BLUE);//ant and black
+        init_pair(5, COLOR_MAGENTA, COLOR_CYAN);//ant and white
+    }
     while (1) {
         //check screen (whether need init_game)
         int new_row=1;
@@ -109,15 +137,41 @@ int main()
         //draw current grid
         current_grid*=-1;
         if (current_grid==-1) {
-            mvprintw(current_y, current_x, white);
+            if (color) {
+                attron(COLOR_PAIR(3));
+                mvprintw(current_y, current_x, white);
+                attroff(COLOR_PAIR(3));
+            }else{
+                mvprintw(current_y, current_x, white);
+            }
         }else{
-            mvprintw(current_y , current_x, black);
+            if (color) {
+                attron(COLOR_PAIR(2));
+                mvprintw(current_y, current_x, black);
+                attroff(COLOR_PAIR(2));
+            }else{
+                mvprintw(current_y, current_x, black);
+            }
         }
         current_y=next_y;
         current_x=next_x;
         current_grid=next_grid;
         current_state=next_state;
-        mvprintw(current_y,current_x,ant[current_state-1]);
+        if (color) {
+            if (current_grid==-1) {
+                attron(COLOR_PAIR(4));
+            }else{
+                attron(COLOR_PAIR(5));
+            }
+            mvprintw(current_y,current_x,ant[current_state-1]);
+            if (current_grid==-1) {
+                attroff(COLOR_PAIR(4));
+            }else{
+                attroff(COLOR_PAIR(5));
+            }
+        }else{
+            mvprintw(current_y,current_x,ant[current_state-1]);
+        }
         refresh();
     }
     //finish game
@@ -125,9 +179,15 @@ int main()
     while (button!=' ') {
         clear();
         getmaxyx(stdscr,row,col);
+        if (color) {
+            attron(COLOR_PAIR(1));
+        }
         mvprintw(row/2, col/2-10, "Thank you -- pikipity");
         mvprintw(row/2+1, col/2-12, "Press \"Space\" to finish");
         refresh();
+        if (color) {
+            attroff(COLOR_PAIR(1));
+        }
         button=getch();
     }
     endwin();
